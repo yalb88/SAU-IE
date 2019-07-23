@@ -1,0 +1,230 @@
+print("ELECTRE YÖNTEMİ İLE ÇOKLU KARAR VERME ARACI")
+while True:
+        secenek=(input("Kaç tane seçenek olduğunu giriniz: "))
+        if secenek.isnumeric()==True:
+            secenek=int(secenek)        
+            if secenek<=0:
+                print("Lütfen 0'dan büyük bir sayı giriniz !")
+            break             
+        else:
+            print("Lütfen Tam Sayı Giriniz !")
+        
+
+liste_secenekIsmi=[]
+for a in range(1,secenek+1):
+    secisim=input("{}. Secenek İsmini giriniz: ".format(a))
+    liste_secenekIsmi.append(secisim)
+
+while True:
+    kriter=input("Kaç tane kriter olduğunu girin: ")
+    if kriter.isnumeric()==True:
+        kriter=int(kriter)
+        break
+    else:
+        print("Lütfen Tam Sayı Giriniz !")
+
+
+liste_kriterIsmi=[]
+for b in range(1,kriter+1):
+    kirisim=input("{}. Kriter İsmini giriniz: ".format(b))
+    liste_kriterIsmi.append(kirisim)
+
+
+liste_agirlik=[]
+for c in range(1,kriter+1):
+    while True:    
+            print(liste_kriterIsmi[c-1]," Kriteri için ")
+            agirlik=input("{}. Ağırlık Değerini giriniz: ".format(c))
+            kontrol=agirlik.replace(".", "")
+            if kontrol.isnumeric()==True:
+                    agirlik=float(agirlik)
+                    liste_agirlik.append(agirlik)
+                    break
+            else:
+                print("Lütfen Sayı Giriniz !")
+i=1
+liste_secenek=[]
+liste_kriter=[]
+liste_karetoplam=[]
+liste_satirtoplam=[]
+liste_standartkarar=[]
+liste_agir_standart=[]
+liste_uyum_seti=[]
+liste_uyumsuz_seti=[]
+
+
+
+#1. Adım    Karar Matrisini oluşturuyoruz
+
+matris_deger=[[0 for j in range(kriter)] for i in range(secenek)]
+
+for a in range(secenek):
+    for b in range(kriter):
+        while True:
+            deger=input("Karar Matrisi Oluşturmak için MATRİS ({})({}) değeri girin: ".format(a+1,b+1))
+            kontrol=deger.replace(".", "")
+            if kontrol.isnumeric()==True:
+                    deger=float(deger)
+                    matris_deger[a][b]=deger
+                    break
+            else:
+                print("Lütfen Sayı Giriniz !")
+
+
+print("OLUŞAN KARAR MATRİSİ")
+
+for d in range (secenek):
+    print(matris_deger[d])
+
+
+
+#2. Adım   Standart Karar Matrisini oluşturuyoruz
+    
+liste_payda=[]
+for j in range(kriter):
+    karetoplam=0
+    for i in range(secenek):
+        karetoplam+=matris_deger[i][j]**2
+        
+    karekok=karetoplam**(0.5)
+    liste_payda.append(karekok) #kriter sayısı kadar elemanı olur
+
+#print(liste_payda)
+
+liste_standartkarar=[[0 for j in range(kriter)] for i in range(secenek)]
+
+for e in range(secenek):
+    for f in range(kriter):
+        liste_standartkarar[e][f]=matris_deger[e][f]/liste_payda[f]
+       
+
+print("OLUŞAN STANDART KARAR MATRİSİ")
+
+for d in range (secenek):
+    print(liste_standartkarar[d])
+
+
+#3. Adım  Standart Karar Matrisinden Yararlanarak Ağırlıklı Karar Matrisi Oluştur
+
+liste_agir_standart=[[0 for j in range(kriter)] for i in range(secenek)]
+
+for i in range(secenek):
+    for j in range(kriter):
+        liste_agir_standart[i][j]=liste_standartkarar[i][j]*liste_agirlik[j]
+        
+            
+print("OLUŞAN AĞIRLAŞTIRILMIŞ STANDART KARAR MATRİSİ")
+
+for d in range (secenek):
+    print(liste_agir_standart[d])
+
+
+
+#print("Ağılıklar Listesi",liste_agirlik)
+#print("Ağır Standart Listesi",liste_agir_standart)
+
+#4. Adım  Uyum ve Uyumsuzluk Matrisleri
+
+uyum_matrisi=[[0 for j in range(secenek)] for i in range(secenek)]
+p=0
+
+for t in range(secenek):
+    for r in range(secenek):
+        g=0
+        for y in range(kriter):
+            if liste_agir_standart[t][y]>=liste_agir_standart[r][y] and t!=r:
+                g+=liste_agirlik[y]
+
+        uyum_matrisi[t][r]=g
+        p+=g
+
+
+h = [[0 for j in range(secenek)] for i in range(secenek)]
+for t in range(secenek):
+    for r in range(secenek):
+        k = [0]*kriter
+        for y in range(kriter):
+            if t!=r:
+                k[y]=(abs(liste_agir_standart[t][y]-liste_agir_standart[r][y]))
+
+        h[t][r]= max(k)
+
+
+
+uyumsuzluk_matrisi=[[0 for j in range(secenek)] for i in range(secenek)]
+q = 0
+
+for t in range(secenek):
+    for r in range(secenek):
+        d = [0]*kriter
+        for y in range(kriter):
+            if liste_agir_standart[t][y]<liste_agir_standart[r][y] and t!=r:
+                d[y]=abs(liste_agir_standart[t][y]-liste_agir_standart[r][y])
+
+                uyumsuzluk_matrisi[t][r]=max(d)/h[t][r]
+        q+=uyumsuzluk_matrisi[t][r]
+
+
+
+print("Uyum Matrisi",uyum_matrisi)
+print("Uyumsuzluk Matrisi",uyumsuzluk_matrisi)
+
+#5. Adım  Uyum Üstünlük ve Uyumsuzluk Üstünlük Matrislerinin Oluşturulması
+
+uyum_esik_degeri = p/(secenek*(secenek-1))
+uyum_ustunluk_matrisi =[[0 for j in range(secenek)] for i in range(secenek)]
+
+for t in range(secenek):
+    for r in range(secenek):
+        if uyum_matrisi[t][r]>=uyum_esik_degeri:
+            uyum_ustunluk_matrisi[t][r]=1
+        else:
+            uyum_ustunluk_matrisi[t][r]=0
+
+
+
+
+uyumsuzluk_esik_degeri=q/(secenek*(secenek-1))
+uyumsuzluk_ustunluk_matrisi=[[0 for j in range(secenek)] for i in range(secenek)]
+
+for t in range(secenek):
+    for r in range(secenek):
+        if uyumsuzluk_matrisi[t][r]>=uyumsuzluk_esik_degeri:
+            uyumsuzluk_ustunluk_matrisi[t][r]=1
+        else:
+            uyumsuzluk_ustunluk_matrisi[t][r]=0
+
+
+print("Uyum Üstünlük Matrisi",uyum_ustunluk_matrisi)
+print("Uyumsuzluk Üstünlük Matrisi",uyumsuzluk_ustunluk_matrisi)
+
+#6. Adım Toplam Baskınlık Matrisinin (E) Oluşturulması
+
+toplam_baskınlık_matrisi=[[0 for j in range(secenek)] for i in range(secenek)]
+
+for t in range(secenek):
+    for r in range(secenek):
+        toplam_baskınlık_matrisi[t][r]=uyumsuzluk_ustunluk_matrisi[t][r]*uyum_ustunluk_matrisi[t][r]
+        
+print("Toplam Baskınlık Matrisi",toplam_baskınlık_matrisi)
+
+#7. Adım Karar Noktalarının Önem Sırasının Belirlenmesi
+
+
+onem_sirasi=[[0 for j in range(secenek)] for i in range(secenek)]
+sayac=0
+
+          
+
+xtop=0
+xmax=0
+for t in range(len(toplam_baskınlık_matrisi)):
+    for r in range(secenek):
+        xtop=xtop+toplam_baskınlık_matrisi[t][r]
+    if xtop>xmax:
+            xmax=xtop
+
+            
+print("Tercih Edilecek Secenek : ",xmax)
+
+print("Secenek isimleri",liste_secenekIsmi)
