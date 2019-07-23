@@ -1,0 +1,60 @@
+import math
+import pandas as pd # sıralama medyan bulmak için
+from math import sqrt # karekök için
+from collections import Counter # mode bulmak için
+
+print("n ELEMANLI SERİ İÇİN ARİTMETİK, KARELİ, GEOMETRİK ORTALAMALARIN")
+print("MOD, MEDYANIN BULUNMASI")
+while True:
+        n=(input("Kaç elemanları bir seri olduğunu giriniz: "))
+        if n.isnumeric()==True:
+            n=int(n)        
+            if n<=0:
+                print("Lütfen 0'dan büyük bir sayı giriniz !")
+            break             
+        else:
+            print("Lütfen Tam Sayı Giriniz !")        
+liste=[]
+toplam=0
+carpim=1
+toplamkare=1
+for c in range(1,n+1):
+    while True:    
+            print("n Dizisinin ")
+            deger=input("{}. Değerini giriniz: ".format(c))
+            kontrol=deger.replace(".", "")
+            if kontrol.isnumeric()==True:
+                    deger=float(deger)
+                    liste.append(deger)
+                    toplam=toplam+deger
+                    carpim=carpim*deger
+                    toplamkare=deger**2+toplamkare
+                    break
+            else:
+                print("Lütfen Sayı Giriniz !")
+art=toplam/n # aritmetik ortalama hesaplama
+kareort=float(toplamkare/n) # ToplamKare ortalama hesaplama
+geo=float(carpim**(1/len(liste)))# geometrik ortalama hesaplama
+medyan_liste=pd.Series(liste) # listeyi medyan için donusturme
+medyan_liste.sort_values()# medyan için sıralama
+
+##mod hesapalama 
+m = len(liste)  
+data = Counter(liste) 
+get_mode = dict(data) 
+mode = [k for k, v in get_mode.items() if v == max(list(data.values()))]   
+if len(mode) == m: 
+    get_mode = "Mod Bulunamadı"
+else: 
+    get_mode = "" + ', '.join(map(str, mode)) 
+## mod hesabı sonu      
+
+
+
+print("**************************************** ")
+print("Dizinin Aritmetik Ortalaması    : ", art)
+print("Dizinin Toplam Kare Ortalaması  : ", sqrt(kareort))
+print("Dizinin Geometrik Ortalaması    : ", geo)
+print("Dizinin Medyanı                 : ", medyan_liste.median())
+print("Dizinin Modu                    : ", get_mode)
+   
